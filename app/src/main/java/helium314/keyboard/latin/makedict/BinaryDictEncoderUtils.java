@@ -106,6 +106,7 @@ public class BinaryDictEncoderUtils {
             size += FormatSpec.PTNODE_FREQUENCY_SIZE;
         }
         size += FormatSpec.PTNODE_MAX_ADDRESS_SIZE; // For children address
+        size += getShortcutListSize(ptNode.mShortcutTargets, null);
         if (null != ptNode.mBigrams) {
             size += (FormatSpec.PTNODE_ATTRIBUTE_FLAGS_SIZE
                 + FormatSpec.PTNODE_ATTRIBUTE_MAX_ADDRESS_SIZE)
