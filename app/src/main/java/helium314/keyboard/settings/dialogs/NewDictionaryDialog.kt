@@ -60,7 +60,8 @@ fun NewDictionaryDialog(
             { it.language !in enabledLanguages },
             { it.script() != dictLocale.script() }
         )
-        val locales = SubtypeSettings.getAvailableSubtypeLocales().sortedWith(comparer)
+        val locales = SubtypeSettings.getAllAvailableSubtypes().map { it.locale() }
+            .distinct().sortedWith(comparer)
         var locale by remember {
             mutableStateOf(mainLocale
                 ?: RichInputMethodManager.getInstance().findSubtypeForHintLocale(dictLocale)?.locale()

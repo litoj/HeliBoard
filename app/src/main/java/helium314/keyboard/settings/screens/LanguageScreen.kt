@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -22,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,11 +43,13 @@ import helium314.keyboard.latin.utils.MissingDictionaryDialog
 import helium314.keyboard.latin.utils.SubtypeLocaleUtils
 import helium314.keyboard.latin.utils.SubtypeLocaleUtils.displayName
 import helium314.keyboard.latin.utils.SubtypeSettings
+import helium314.keyboard.latin.utils.SubtypeUtilsAdditional
 import helium314.keyboard.latin.utils.getActivity
 import helium314.keyboard.latin.utils.locale
 import helium314.keyboard.latin.utils.prefs
 import helium314.keyboard.settings.SearchScreen
 import helium314.keyboard.settings.SettingsActivity
+import helium314.keyboard.settings.dialogs.TextInputDialog
 import helium314.keyboard.settings.SettingsDestination
 import helium314.keyboard.latin.utils.Theme
 import helium314.keyboard.settings.initPreview
@@ -61,8 +66,14 @@ fun LanguageScreen(
     if ((b?.value ?: 0) < 0)
         Log.v("irrelevant", "stupid way to trigger recomposition on preference change")
     val enabledSubtypes = SubtypeSettings.getEnabledSubtypes()
+    var showAddLanguage by remember { mutableStateOf(false) }
     SearchScreen(
         onClickBack = onClickBack,
+        icon = {
+            IconButton(onClick = { showAddLanguage = true }) {
+                Icon(painterResource(R.drawable.ic_plus), stringResource(R.string.add_custom_language))
+            }
+        },
         title = {
             Column {
                 Text(stringResource(R.string.language_and_layouts_title))
@@ -81,6 +92,26 @@ fun LanguageScreen(
         },
         itemContent = { SubtypeRow(it, it in enabledSubtypes) }
     )
+    if (showAddLanguage) {
+        val dismiss = { showAddLanguage = false }
+        TextInputDialog(
+            onDismissRequest = dismiss,
+            onConfirmed = { text ->
+                dismiss()
+                val locale = Locale.forLanguageTag(text.trim().replace('_', '-'))
+                if (locale.language.isNotEmpty()) {
+                    val layout = SubtypeSettings.getMatchingMainLayoutNameForLocale(locale)
+                    val subtype = SubtypeUtilsAdditional.createDummyAdditionalSubtype(locale, layout)
+                    val settingsSubtype = subtype.toSettingsSubtype()
+                    SubtypeUtilsAdditional.changeAdditionalSubtype(settingsSubtype, settingsSubtype, ctx)
+                    SubtypeSettings.addEnabledSubtype(ctx.prefs(), subtype)
+                }
+            },
+            title = { Text(stringResource(R.string.add_custom_language)) },
+            textInputLabel = { Text(stringResource(R.string.language_tag)) },
+            checkTextValid = { Locale.forLanguageTag(it.trim().replace('_', '-')).language.isNotEmpty() },
+        )
+    }
 }
 
 @Composable
