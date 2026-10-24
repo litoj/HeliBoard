@@ -64,6 +64,7 @@ import helium314.keyboard.latin.utils.getActivity
 import helium314.keyboard.latin.utils.getDictionaryLocales
 import helium314.keyboard.latin.utils.getSecondaryLocales
 import helium314.keyboard.latin.utils.getStringResourceOrName
+import helium314.keyboard.latin.utils.runInLocale
 import helium314.keyboard.latin.utils.htmlToAnnotated
 import helium314.keyboard.latin.utils.mainLayoutName
 import helium314.keyboard.latin.utils.prefs
@@ -103,6 +104,11 @@ fun SubtypeScreen(
     fun setCurrentSubtype(subtype: SettingsSubtype) {
         SubtypeUtilsAdditional.changeAdditionalSubtype(currentSubtype, subtype, ctx)
         currentSubtypeString = subtype.toPref()
+    }
+    val toggleNoSpaces = {
+        setCurrentSubtype(if (currentSubtype.hasExtraValueOf(ExtraValue.NO_SPACES))
+            currentSubtype.without(ExtraValue.NO_SPACES)
+        else currentSubtype.with(ExtraValue.NO_SPACES))
     }
     LaunchedEffect(currentSubtypeString) {
         if (ScriptUtils.scriptSupportsUppercase(currentSubtype.locale)) return@LaunchedEffect
@@ -151,6 +157,24 @@ fun SubtypeScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 MainLayoutRow(currentSubtype, customMainLayouts) { setCurrentSubtype(it) }
+                val localeHasSpaces = runInLocale(ctx, currentSubtype.locale) {
+                    it.resources.getBoolean(R.bool.current_language_has_spaces)
+                }
+                if (localeHasSpaces) {
+                    WithSmallTitle(stringResource(R.string.subtype_no_spaces)) {
+                        ActionRow(onClick = toggleNoSpaces) {
+                            Text(stringResource(R.string.subtype_no_spaces_summary),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(start = 10.dp)
+                            )
+                            Switch(
+                                checked = currentSubtype.hasExtraValueOf(ExtraValue.NO_SPACES),
+                                onCheckedChange = { toggleNoSpaces() }
+                            )
+                        }
+                    }
+                }
                 if (availableLocalesForScript.size > 1) {
                     WithSmallTitle(stringResource(R.string.secondary_locale)) {
                         ActionRow(onClick = { showSecondaryLocaleDialog = true }) {

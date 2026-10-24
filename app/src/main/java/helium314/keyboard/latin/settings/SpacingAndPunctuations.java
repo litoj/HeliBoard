@@ -39,6 +39,13 @@ public final class SpacingAndPunctuations {
     public final String mScript;
 
     public SpacingAndPunctuations(Resources res, Boolean urlDetection, Locale locale) {
+        this(res, urlDetection, locale, false);
+    }
+
+    /**
+     * @param noSpaces treat the language as having no spaces between words, whatever its resources say
+     */
+    public SpacingAndPunctuations(Resources res, Boolean urlDetection, Locale locale, boolean noSpaces) {
         // To be able to binary search the code point. See {@link #isUsuallyPrecededBySpace(int)}.
         mSortedSymbolsPrecededBySpace = StringUtils.toSortedCodePointArray(res.getString(R.string.symbols_preceded_by_space));
         // To be able to binary search the code point. See {@link #isUsuallyFollowedBySpace(int)}.
@@ -53,7 +60,7 @@ public final class SpacingAndPunctuations {
         mAbbreviationMarker = res.getInteger(R.integer.abbreviation_marker);
         mSentenceSeparatorAndSpace = new String(new int[] {
                 mSentenceSeparator, Constants.CODE_SPACE }, 0, 2);
-        mCurrentLanguageHasSpaces = res.getBoolean(R.bool.current_language_has_spaces);
+        mCurrentLanguageHasSpaces = !noSpaces && res.getBoolean(R.bool.current_language_has_spaces);
         // make it empty if language doesn't have spaces, to avoid weird glitches
         mSortedSometimesWordConnectors = (urlDetection && mCurrentLanguageHasSpaces) ? StringUtils.toSortedCodePointArray(res.getString(R.string.symbols_sometimes_word_connectors)) : new int[0];
         mLocale = locale;

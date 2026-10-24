@@ -29,6 +29,7 @@ import helium314.keyboard.latin.PunctuationSuggestions;
 import helium314.keyboard.latin.R;
 import helium314.keyboard.latin.RichInputMethodManager;
 import helium314.keyboard.latin.common.Colors;
+import helium314.keyboard.latin.common.Constants;
 import helium314.keyboard.latin.permissions.PermissionsUtil;
 import helium314.keyboard.latin.utils.FoldableUtils;
 import helium314.keyboard.latin.utils.InputTypeUtils;
@@ -318,7 +319,9 @@ public class SettingsValues {
                 mBlockPotentiallyOffensive,
                 prefs.getBoolean(Settings.PREF_GESTURE_SPACE_AWARE, Defaults.PREF_GESTURE_SPACE_AWARE)
         );
-        mSpacingAndPunctuations = new SpacingAndPunctuations(res, mUrlDetectionEnabled, mLocale);
+        mSpacingAndPunctuations = new SpacingAndPunctuations(res, mUrlDetectionEnabled, mLocale,
+                selectedSubtype != null
+                        && selectedSubtype.containsExtraValueKey(Constants.Subtype.ExtraValue.NO_SPACES));
         mBottomPaddingScale = mIsFloatingKeyboard ? 0f : Settings.readBottomPaddingScale(prefs, isLandscape, isFolded);
         mSidePaddingScale = Settings.readSidePaddingScale(prefs, isLandscape, mIsSplitKeyboardEnabled, isFolded);
         mLongPressSymbolsForNumpad = prefs.getBoolean(Settings.PREFS_LONG_PRESS_SYMBOLS_FOR_NUMPAD, Defaults.PREFS_LONG_PRESS_SYMBOLS_FOR_NUMPAD);

@@ -60,6 +60,9 @@ public final class Constants {
             /** Indicates that the subtype does not have a shift key */
             public static final String NO_SHIFT_KEY = "NoShiftKey";
 
+            /** Indicates that the language has no spaces between words, so every typed character starts a new word */
+            public static final String NO_SPACES = "NoSpaces";
+
             /** Indicates that for this subtype corrections should not be based on proximity of keys for when shifted */
             public static final String NO_SHIFT_PROXIMITY_CORRECTION = "NoShiftProximityCorrection";
 
