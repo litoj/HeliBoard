@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,9 +36,12 @@ import java.io.File
 import java.util.Locale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.window.Dialog
 import helium314.keyboard.latin.RichInputMethodManager
 import helium314.keyboard.latin.makedict.CombinedInputOutput
 import helium314.keyboard.latin.makedict.DictIO
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun NewDictionaryDialog(
@@ -44,7 +49,21 @@ fun NewDictionaryDialog(
     cachedFile: File,
     mainLocale: Locale?
 ) {
-    val (error, header) = remember { checkDict(cachedFile) } // todo: this should be done on in background, dict conversion can be slow
+    // converting a combined dictionary can take seconds, keep it off the UI thread
+    var result by remember { mutableStateOf<Pair<Int?, DictionaryHeader?>?>(null) }
+    LaunchedEffect(cachedFile) {
+        result = withContext(Dispatchers.IO) { checkDict(cachedFile) }
+    }
+    val checked = result
+    if (checked == null) {
+        Dialog(onDismissRequest = { }) {
+            Surface(shape = MaterialTheme.shapes.medium) {
+                Text(stringResource(R.string.dictionary_loading), Modifier.padding(24.dp))
+            }
+        }
+        return
+    }
+    val (error, header) = checked
     if (error != null) {
         InfoDialog(stringResource(error), onDismissRequest)
         cachedFile.delete()

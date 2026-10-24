@@ -301,6 +301,7 @@
     <string name="more_keys_strip_description">More keys</string>
     <!-- Title for input language & layout selection screen -->
     <string name="language_and_layouts_title">Languages &amp; Layouts</string>
+    <string name="dictionary_loading">Adding dictionary…</string>
     <!-- Title of the setting to enable number row -->
     <string name="number_row">Number row</string>
     <!-- Description of the settings to enable number row -->
